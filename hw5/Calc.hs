@@ -26,13 +26,15 @@ In the instance declaration for ‘Expr StackVM.Program’
 
 
 
-
-
 module Calc where
 
 import ExprT
 import Parser
 import qualified StackVM
+
+import qualified Data.Map as M
+
+
 
 {-|
 This is from ExprT, pasting here for reference
@@ -196,6 +198,78 @@ t5 = compileTest "(2 * 6 + 4) 3"
 --------------
 -- Exercise 6
 --------------
+
+-- Types which are instances of HasVars have some notion of
+-- named variables
+class HasVars a where
+  var :: String -> a
+
+
+data VarExprT = VarExprT String
+                | VarExprTLit Integer
+                | VarExprTAdd VarExprT VarExprT
+                | VarExprTMul VarExprT VarExprT
+                deriving (Show, Eq)
+
+
+instance HasVars VarExprT where
+  var = VarExprT
+
+instance Expr VarExprT where
+  lit = VarExprTLit
+  add = VarExprTAdd
+  mul = VarExprTMul
+
+
+instance HasVars (M.Map String Integer -> Maybe Integer) where
+  var = M.lookup
+
+instance Expr (M.Map String Integer -> Maybe Integer) where
+  {-| For lit:
+  lit takes an integer, and returns a function that takes a map as input, and
+  provides an integer as the output.
+
+  In the code below, x :: M.Map String Integer, so the output is a function
+  that takes a map, and returns the integer that was passed in as input
+  -}
+  lit x = \_ -> Just x
+
+  {-| For add & mul:
+  Both f and g are of type "something that takes a map and returns Maybe Integer"
+  The output of add and mul is also of type "that takes a map, and returns Maybe Integer"
+
+  At this point we know that the output is a function that takes a map, and returns
+  a Maybe Integer. This means that in our lambda, x :: M.Map String Integer
+
+  Now, the only part we need to figure out is how to use f and g, so that we can get
+  the output as a Maybe Integer. So, we pass the input to the lambda (x) to both f
+  and g, and when both return (Just a) & (Just b), we apply the operation (add or mul)
+  to a & b and wrap the result in Just
+  -}
+  add f g = \x ->
+            case f x of
+              Nothing   -> Nothing
+              (Just a)  -> case g x of
+                             Nothing  -> Nothing
+                             (Just b) -> Just (a + b)
+
+  mul f g = \x ->
+           case f x of
+             Nothing   -> Nothing
+             (Just a)  -> case g x of
+                            Nothing  -> Nothing
+                            (Just b) -> Just (a * b)
+
+
+
+-- Test function from the homework
+withVars :: [(String, Integer)]
+         -> (M.Map String Integer -> Maybe Integer)
+         -> Maybe Integer
+withVars vs expr = expr $ M.fromList vs
+
+
+
 
 
 
