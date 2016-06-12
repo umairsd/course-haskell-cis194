@@ -156,5 +156,21 @@ fibs3 = x / (1 - x - x*x)
 
 
 
+--------------
+-- Exercise 7
+--------------
 
+data Matrix = Matrix Integer Integer Integer Integer deriving (Show, Eq)
+
+
+instance Num Matrix where
+  (*) (Matrix a00 a01 a10 a11) (Matrix b00 b01 b10 b11) =
+      Matrix (a00*b00 + a01*b10) (a00*b01 + a01*b11) (a10*b00 + a11*b10) (a10*b01 + a11*b11)
+
+
+fib4 :: Integer -> Integer
+fib4 0 = 0
+fib4 n = y
+    where
+        Matrix _ y _ _ = (Matrix 1 1 1 0)^n
 
