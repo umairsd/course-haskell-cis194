@@ -84,12 +84,22 @@ nats :: Stream Integer
 nats = streamFromSeed (+1) 1
 
 -- stream that corresponds to the ruler function
--- 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, . . .
+-- Values:    0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0, 4, . . .
+-- Indices:   1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
 -- nth element in the stream (assuming the first element corresponds to n=1) is
 -- the largest power of 2 which evenly divides n
-
 ruler :: Stream Integer
-ruler = undefined
+ruler = streamMap powerOf2 nats
+
+powerOf2 :: Integer -> Integer
+powerOf2 n
+  | n == 0    = 0
+  | even n    = 1 + powerOf2 (n `div` 2)
+  | otherwise = 0
+
+
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (Cons x xs) (Cons y ys) = Cons x (Cons y (interleaveStreams xs ys) )
 
 
 
