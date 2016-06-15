@@ -16,6 +16,34 @@ import Control.Arrow       (first, second)
 import Data.Char
 import Data.List
 
+
+
+-----------------------------------------------------------------------------
+{-|
+
+When I use this class as is, I get the following error:
+
+Editor.hs:38:38:
+    No instance for (Applicative (Editor b))
+      arising from the 'deriving' clause of a data type declaration
+    Possible fix:
+      use a standalone 'deriving instance' declaration,
+        so you can specify the instance context yourself
+    When deriving the instance for (MonadState (b, Int) (Editor b))
+Failed, modules loaded: Buffer.
+
+I found a solution from Reddit:
+https://m.reddit.com/r/haskellquestions/comments/3j55zb/cis_194_homework_7/?ref=readnext
+-}
+
+instance Applicative (Editor b) where
+    pure = return
+    (<*>) = ap
+
+-----------------------------------------------------------------------------
+
+
+
 -- Editor commands
 
 data Command = View

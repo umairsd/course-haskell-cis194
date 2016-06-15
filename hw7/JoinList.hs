@@ -4,12 +4,19 @@ CIS-194 (Spring 2013)
 Source:
 http://www.seas.upenn.edu/~cis194/spring13/hw/07-folds-monoids.pdf-}
 
+
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
 {-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 
 module JoinList where
 
 import Sized
 import Scrabble
+import Buffer
+import Editor
+
 
 
 -- the m parameter will be used to track monoidal annotations to the
@@ -131,9 +138,56 @@ scoreLine :: String -> JoinList Score String
 scoreLine str = Single (scoreString str) str
 
 
+
+
+--------------
+-- Exercise 4
+--------------
+
+-- class Buffer b where
+instance Buffer (JoinList (Score, Size) String) where
+
+    -- | Convert a buffer to a String.
+    -- toString :: b -> String
+    toString    = unlines . jlToList
+
+    -- | Create a buffer from a String.
+    -- fromString :: String -> b
+    fromString  = foldr (+++) Empty . map (\str -> (Single (scoreString str, Size 1) str) ) . lines
+
+    -- | Extract the nth line (0-indexed) from a buffer.  Return Nothing
+    -- for out-of-bounds indices.
+    -- line :: Int -> b -> Maybe String
+    line = indexJ
+
+    -- | @replaceLine n ln buf@ returns a modified version of @buf@,
+    --   with the @n@th line replaced by @ln@.  If the index is
+    --   out-of-bounds, the buffer should be returned unmodified.
+    -- replaceLine :: Int -> String -> b -> b
+    replaceLine n str jl = takeJ n jl +++ fromString str +++ dropJ (n+1) jl
+
+    -- | Compute the number of lines in the buffer.
+    -- numLines :: b -> Int
+    numLines = getSize . snd . tag
+
+    -- | Compute the value of the buffer, i.e. the amount someone would
+    --   be paid for publishing the contents of the buffer.
+    -- value :: b -> Int
+    value = getScore . fst . tag
+
+
+
+main = runEditor editor (fromString "HW7-Test" :: (JoinList (Score, Size) String) )
+
+
+--------------
+-- END
+--------------
+
+
+
 --
 {-\
-
 -- This works in GHCI.
 -- Type :{ and enter
 -- Paste the below code
