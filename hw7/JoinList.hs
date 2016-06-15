@@ -9,22 +9,8 @@ http://www.seas.upenn.edu/~cis194/spring13/hw/07-folds-monoids.pdf-}
 module JoinList where
 
 import Sized
+import Scrabble
 
-
-{- |
-data JoinListBasic a =
-      Empty
-    | Single a
-    | Append (JoinListBasic a) (JoinListBasic a)
-    deriving (Show, Eq)
-
---
-jlbToList :: JoinListBasic a -> [a]
-jlbToList Empty = []
-jlbToList (Single a) = [a]
-jlbToList (Append l1 l2) = jlbToList l1 ++ jlbToList l2
-
--}
 
 -- the m parameter will be used to track monoidal annotations to the
 -- structure.
@@ -135,6 +121,14 @@ jlToList Empty            = []
 jlToList (Single _ a)     = [a]
 jlToList (Append _ l1 l2) = jlToList l1 ++ jlToList l2
 
+
+
+
+--------------
+-- Exercise 3
+--------------
+scoreLine :: String -> JoinList Score String
+scoreLine str = Single (scoreString str) str
 
 
 --
