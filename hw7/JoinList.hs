@@ -61,14 +61,11 @@ indexJ n (Single s x)
     | (n+1) == rootSize = Just x
     | otherwise         = Nothing
     where rootSize = (getSize . size) s
-
-{- |
-(Append s left right) contains two sub-trees. The total size s is
+{- | (Append s left right) contains two sub-trees. The total size s is
 the sum of leftSize, and rightSize. So:
 
  -  If n falls between 0 and leftSize-1, then it means it falls in the left subtree.
     As we go left, the index range does not change
-
  -  If n >= leftCount && n < rootSize, then it means it falls in the right subtree.
     As we go right, the effective index in the rightSubtree would be (n - leftSize)
 -}
@@ -81,6 +78,53 @@ indexJ n (Append s left right)
         rootSize  = (getSize . size) s
         newIndex  = n - leftSize
 
+
+-- B:
+dropJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+dropJ _ Empty = Empty
+
+dropJ n jl@(Single _ _)
+    | n <= 0    = jl
+    | otherwise = Empty
+
+dropJ n jl@(Append s left right)
+    | n <= 0        = jl
+    | n >= rootSize = Empty
+    -- Drop n elements from the left subtree, and combine it with the right tree
+    | n < leftSize  = dropJ n left +++ right
+    -- Drop all elements (= leftSie) in left, and n-leftSize elements in right.
+    -- We need to explicitly drop all elements in left, and combine the result
+    -- with the result of dropping (n-leftSize) elements on right. This is so that
+    -- we can correctly compute the new size
+    | otherwise     = dropJ leftSize left +++ dropJ (n - leftSize) right
+    where
+        leftSize  = (getSize . size . tag) left
+        rootSize  = (getSize . size) s
+
+
+
+-- C:
+takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+takeJ _ Empty = Empty
+
+takeJ n jl@(Single _ _)
+    | n <= 0    = Empty
+    | otherwise = jl
+
+takeJ n jl@(Append s left right)
+    | n <= 0        = Empty
+    | n >= rootSize = jl
+    -- We are only taking a handful of elements in the left tree
+    | n < leftSize  = takeJ n left
+    -- We are taking all elements from left subtree, and (n-leftSize) elements
+    -- from the right subtree.
+    | otherwise     = left +++ takeJ (n - leftSize) right
+    where
+        leftSize  = (getSize . size . tag) left
+        rootSize  = (getSize . size) s
+
+-- NOTE: In the above code for takeJ, we can combine the last two clauses for
+-- takeJ n (Append ...). I've kept them separate for readability
 
 
 -- Copied from assignment, for testing
