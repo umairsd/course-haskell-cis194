@@ -2,7 +2,8 @@
 CIS-194 (Spring 2013)
 
 Source:
-http://www.seas.upenn.edu/~cis194/spring13/hw/07-folds-monoids.pdf-}
+http://www.seas.upenn.edu/~cis194/spring13/hw/07-folds-monoids.pdf
+-}
 
 
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
