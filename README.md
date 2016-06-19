@@ -3,5 +3,5 @@ My solutions as I go through Brent Yorgey's CIS-194 Haskell class (Spring 2013).
 
 
 ## Licensing
-The MIT License for this repo (in the file LICENSE) applies to *my* work and code only. The original source files provided for each assignment are covered by the original license terms for each file. Those terms are set by Coursera/Stanford/Andrew Ng. Please consult with them prior to using those files.
+The MIT License for this repo (in the file LICENSE) applies to *my* work and code only. The original source files provided for each assignment are covered by the original license terms for each file. Please consult with the license-holders for those files prior to using them.
 
