@@ -11,6 +11,7 @@ http://www.seas.upenn.edu/~cis194/spring13/hw/08-IO.pdf
 module Party where
 
 import Employee
+import Data.Tree
 
 --------------
 -- Exercise 1
@@ -26,26 +27,21 @@ instance Monoid GuestList where
 
 
 moreFun :: GuestList -> GuestList -> GuestList
-moreFun gl1 gl2
-    | gl1 < gl2 = gl2
-    | otherwise = gl1
+moreFun gl1@(GL _ f1) gl2@(GL _ f2)
+    | f1 >= f2  = gl1
+    | otherwise = gl2
 
 
 --------------
 -- Exercise 2
 --------------
 
+treeFold :: (a -> [b] -> b) -> b -> Tree a -> b
+treeFold f acc Node{rootLabel = r, subForest = sf}  = f r mappedList
+    where
+        -- Fold each tree in the subForest into b, thus giving a [b]
+        mappedList = map (treeFold f acc) sf
 
-data Tree a = Node {
-     rootLabel :: a,         -- label value
-     subForest :: [Tree a]   -- zero or more child trees
-}
-
--- Mirroring the types of treeFold on foldr
-treeFold :: (a -> b -> b) -> b -> Tree a -> b
-treeFold f acc Node{rootLabel = r, subForest = []}  = f r acc
-treeFold f acc Node{rootLabel = r, subForest = xs}  =
-    foldr (\y newAcc -> treeFold f newAcc y) (f r acc) xs
 
 
 --------------
@@ -58,10 +54,15 @@ treeFold f acc Node{rootLabel = r, subForest = xs}  =
 -- of that subtree, and the second is the best possible guest list without the
 -- boss of that subtree
 nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
-nextLevel e@Emp {empFun = n}   []      = (GL [e] n, mempty)
-nextLevel e                    (g:gl)  = (glCons e maxGLWithoutBoss, maxGLWithBoss)
+nextLevel boss  []  = (glCons boss mempty, mempty)
+nextLevel boss  gl  = (glCons boss glWithoutSubBoss, glWithSubBoss)
     where
-        (maxGLWithBoss, maxGLWithoutBoss) = foldr (\x acc -> (moreFun (fst x) (fst acc), moreFun (snd x) (snd acc) )) g gl
+        -- Get 1st element of each tuple (i.e. guest list for each sub-division that
+        -- includes that sub-division's boss), and concatenate them together
+        glWithSubBoss    = mconcat $ map fst gl
+        -- Get the 2nd element for each tuple (i.e. the list for each sub-division
+        -- without that division's boss) and concatenate them together.
+        glWithoutSubBoss = mconcat $ map snd gl
 
 
 
@@ -70,6 +71,14 @@ nextLevel e                    (g:gl)  = (glCons e maxGLWithoutBoss, maxGLWithBo
 --------------
 
 maxFun :: Tree Employee -> GuestList
-maxFun = undefined
+maxFun tree = moreFun glWithRoot glWithoutRoot
+    where
+        (glWithRoot, glWithoutRoot) = treeFold nextLevel (mempty, mempty) tree
+
+
+
+
+
+
 
 
