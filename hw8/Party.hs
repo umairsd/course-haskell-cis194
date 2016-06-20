@@ -12,6 +12,7 @@ module Party where
 
 import Employee
 import Data.Tree
+import Data.List
 
 --------------
 -- Exercise 1
@@ -77,8 +78,17 @@ maxFun tree = moreFun glWithRoot glWithoutRoot
 
 
 
+--------------
+-- Exercise 5
+--------------
 
+main :: IO()
+main = do
+    -- companyStr :: String
+    companyStr <- readFile "company.txt"
+    let tree        = read companyStr :: Tree Employee
+        (GL xs fn)  = maxFun tree
 
-
-
+    putStrLn $ "Total fun: " ++ show fn
+    putStrLn $ unlines . sort $ map empName xs
 
