@@ -41,6 +41,13 @@ data Tree a = Node {
      subForest :: [Tree a]   -- zero or more child trees
 }
 
+-- Mirroring the types of treeFold on foldr
+treeFold :: (a -> b -> b) -> b -> Tree a -> b
+treeFold f acc Node{rootLabel = r, subForest = []}  = f r acc
+treeFold f acc Node{rootLabel = r, subForest = xs}  =
+    foldr (\y newAcc -> treeFold f newAcc y) (f r acc) xs
+
+
 --------------
 -- Exercise 3
 --------------
