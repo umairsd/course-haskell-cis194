@@ -2,6 +2,13 @@
    due Monday, 1 April
 -}
 
+{-
+CIS-194 (Spring 2013)
+
+Source:
+http://www.seas.upenn.edu/~cis194/spring13/hw/10-applicative.pdf
+-}
+
 module AParser where
 
 import           Control.Applicative
@@ -57,3 +64,50 @@ posInt = Parser f
 ------------------------------------------------------------
 -- Your code goes below here
 ------------------------------------------------------------
+
+
+
+--------------
+-- Exercise 1
+--------------
+
+first :: (a -> b) -> (a,c) -> (b,c)
+first f (x,y)= (f x, y)
+
+
+
+instance Functor Parser where
+    -- The types are as follows:
+    -- fmap :: (a->b) -> f a -> f b
+    -- fmap :: (a->b) -> Parser a -> Parser b
+    --
+    -- g :: String -> Maybe (a, String)
+    -- x :: String
+    -- g x :: Maybe (a, String)
+    fmap f Parser { runParser = g} =
+        Parser { runParser = \ x -> case g x of
+                        Nothing  -> Nothing
+                        Just y   -> Just (first f y)
+               }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
