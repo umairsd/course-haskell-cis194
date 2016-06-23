@@ -74,40 +74,15 @@ posInt = Parser f
 first :: (a -> b) -> (a,c) -> (b,c)
 first f (x,y)= (f x, y)
 
-
-
 instance Functor Parser where
     -- The types are as follows:
-    -- fmap :: (a->b) -> f a -> f b
-    -- fmap :: (a->b) -> Parser a -> Parser b
+    -- fmap             :: (a->b) -> f a -> f b
+    -- fmap             :: (a->b) -> Parser a -> Parser b
     --
-    -- g :: String -> Maybe (a, String)
-    -- x :: String
-    -- g x :: Maybe (a, String)
-    fmap f Parser { runParser = g} =
-        Parser { runParser = \ x -> case g x of
+    -- p                :: String -> Maybe (a, String)
+    -- x                :: String
+    -- runParser p x    :: Maybe (a, String)
+    fmap f p = Parser (\ x -> case runParser p x of
                         Nothing  -> Nothing
-                        Just y   -> Just (first f y)
-               }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                        Just y   -> Just (first f y) )
 
