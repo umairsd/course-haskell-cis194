@@ -86,3 +86,31 @@ instance Functor Parser where
                         Nothing  -> Nothing
                         Just y   -> Just (first f y) )
 
+
+--------------
+-- Exercise 2
+--------------
+
+instance Applicative Parser where
+    -- pure :: a -> f a
+    pure x = Parser (\str -> Just (x, str) )
+
+    -- (<*>)            :: f (a -> b) -> f a -> f b
+    -- p1               :: Parser( String -> Maybe (a->b, String) )
+    -- p2               :: Parser( String -> Maybe (a, String) )
+    -- output           :: Parser( String -> Maybe (b, String) )
+    -- x1, x2, out      :: String
+    -- runParser p1 x1  :: Maybe(a->b, String)
+    -- runParser p2 x2  :: Maybe(a, String)
+    -- fab              :: (a -> b)
+    -- y                :: a
+    --
+    (<*>) p1 p2 = Parser result
+        where
+            result = \x1 -> case runParser p1 x1 of
+                                Nothing         -> Nothing
+                                Just (fab, x2)  -> case runParser p2 x2 of
+                                        Nothing         -> Nothing
+                                        Just(y, out)    -> Just (fab y, out)
+
+
