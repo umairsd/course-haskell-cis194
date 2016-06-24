@@ -154,3 +154,34 @@ intPair = (\x _ z -> (x:z:[])) <$> posInt <*> char ' ' <*> posInt
 
 
 
+--------------
+-- Exercise 4
+--------------
+
+instance Alternative Parser where
+    -- empty represents the parser that always fails
+    -- empty :: f a
+    empty       = Parser (\_ -> Nothing)
+    -- p1 <|> p2 represents the parser which first tries p1. If p1 succeeds
+    -- then p2 is ignored and the result of p1 is returned. Otherwise, if p1 fails
+    -- then p2 is tried instead
+    -- (<|>) :: f a -> f a -> f a
+    (<|>) p1 p2 = Parser (\input -> case runParser p1 input of
+                        Nothing     -> case runParser p2 input of
+                                Nothing     -> Nothing
+                                p2Result    -> p2Result
+                        p1Result    -> p1Result)
+
+
+
+--------------
+-- Exercise 5
+--------------
+
+intOrUppercase :: Parser ()
+intOrUppercase = (\_ -> ()) <$> posInt <|> (\_ -> ()) <$> (satisfy isUpper)
+
+
+
+
+
