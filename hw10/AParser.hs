@@ -114,3 +114,43 @@ instance Applicative Parser where
                                         Just(y, out)    -> Just (fab y, out)
 
 
+
+
+--------------
+-- Exercise 3
+--------------
+{-
+You should implement each of the following exercises using the Applicative
+interface to put together simpler parsers into more complex ones. Do not
+implement them using the low-level definition of a Parser! In other words,
+pre- tend that you do not have access to the Parser constructor or even know
+how the Parser type is defined.
+-}
+
+-- Part A
+abParser :: Parser (Char, Char)
+abParser = (,) <$> char 'a' <*> char 'b'
+{-
+-- Version using the low-level details
+abParser = Parser out
+    where
+        p1 = char 'a'
+        p2 = char 'b'
+        out = \x1 -> case runParser p1 x1 of
+            Nothing         -> Nothing
+            Just (c1, x2)   -> case runParser p2 x2 of
+                Nothing         -> Nothing
+                Just (c2, y)    -> Just ((c1, c2), y)
+-}
+
+-- Part B
+abParser_ :: Parser ()
+abParser_ = (\_ _ -> ()) <$> char 'a' <*> char 'b'
+
+
+-- Part C
+intPair :: Parser [Integer]
+intPair = (\x _ z -> (x:z:[])) <$> posInt <*> char ' ' <*> posInt
+
+
+
