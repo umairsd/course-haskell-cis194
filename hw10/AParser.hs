@@ -19,7 +19,12 @@ import           Data.Char
 -- represnting the input to be parsed, and succeeds or fails; if it
 -- succeeds, it returns the parsed value along with the remainder of
 -- the input.
-newtype Parser a = Parser { runParser :: String -> Maybe (a, String) }
+
+--newtype Parser a = Parser { runParser :: String -> Maybe (a, String) }
+
+-- [Umair's note] this is my version, to clarify the concepts
+newtype Parser a = Parser (String -> Maybe (a, String))
+runParser (Parser f) = \str -> f str
 
 -- For example, 'satisfy' takes a predicate on Char, and constructs a
 -- parser which succeeds only if it sees a Char that satisfies the
@@ -179,8 +184,9 @@ instance Alternative Parser where
 --------------
 
 intOrUppercase :: Parser ()
-intOrUppercase = (\_ -> ()) <$> posInt <|> (\_ -> ()) <$> (satisfy isUpper)
-
+-- intOrUppercase = (\_ -> ()) <$> posInt <|> (\_ -> ()) <$> (satisfy isUpper)
+intOrUppercase = f posInt <|> f (satisfy isUpper)
+    where f = fmap (\_ -> ())
 
 
 
