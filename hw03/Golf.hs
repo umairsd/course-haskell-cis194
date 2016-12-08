@@ -45,56 +45,45 @@ localMaxima (x:y:z:xs)  =
 
 
 -- Exercise 3 (Histogram)
+{-
+The approach is: 
+- append [0..9] to the input list, so that we have all possible numbers
+- sort and then group
+- convert the list to a list of tuples, which has each element and its count [(e, count)]
+- create a string of stars for each element corresponding to its count.
+- At this point, the we will have a 2D list of the form:
+  [ ["***"],    -- 0
+    [""],       -- 1
+    ["******"]] -- 2
+
+- Pad the list with spaces so that all the strings are the same length
+- transpose, and then reverse the list to create the histogram.
+- append the footer strings
+- unlines to create one long string
+
+In summary, this looks like:
+
+unlines $ append footer $ reverse $ transpose $ starsStr $ [(n,count-1)] $ group $ sort $ input ++ [0,1,2,3,4,5,6,7,8,9]
+-}
 histogram :: [Integer] -> String
-histogram = unlines . histoHelper
-
--- Helper method that generates a list of Strings. Each string in the list
--- represents one level of the histogram
-histoHelper :: [Integer] -> [String]
-histoHelper xs = generate2DFromNumbers xs ++ ["==========", "0123456789"]
-
--- Given a list of numbers, generates a 2D vertical histogram. Each level
--- is represented by a string.
-generate2DFromNumbers :: [Integer] -> [String]
-generate2DFromNumbers xs = generate2DHelper (findMaxCount countsMap) countsMap []
+histogram input = (unlines . (++ ["==========","0123456789"]) . reverse . transpose) ys
   where
-    countsMap = countNumbers xs
+    xs        = getCountTuples (input ++ [0..9])
+    maxStrLen = snd $ maximumBy (\t1 t2 -> compare (snd t1) (snd t2)) xs
+    ys        = map (getStarStr maxStrLen) xs
 
+-- Given a list of integers, it generates a tuple of counts for each number
+getCountTuples :: [Integer] -> [(Integer, Integer)]
+getCountTuples = map f1 . group. sort 
+  where 
+    f1 = \xs@(x:_) -> (x, toInteger $ length xs - 1)
 
-generate2DHelper :: Integer -> [(Integer, Integer)] -> [String] -> [String]
-generate2DHelper currentLevel countsMap result
-  | currentLevel == 0 = result
-  | otherwise     = result ++ [xyz] ++ generate2DHelper (currentLevel - 1) countsMap result
-      where
-        xyz = foldr (\x acc -> if snd x >= currentLevel then '*':acc else ' ':acc) [] countsMap
-
-
--- Given a map between integers and their counts, this finds the highest count
--- (i.e. the count of number repeated the most times)
-findMaxCount :: [(Integer, Integer)] -> Integer
-findMaxCount = foldl (\acc x -> max acc (snd x)) 0
-
-
--- Given a list of integers, creates a mapping between the integer, and its
--- count in the list. This map is represented by a list of tuples
-countNumbers :: [Integer] -> [(Integer, Integer)]
-countNumbers xs =
-  let countsMap = zip [0..9] [0,0..]
-  in foldl (\acc x -> incrementForNum x acc) countsMap xs
-
--- Takes a countMap (a list of tuples, the first element is key, and second)
--- is the value) and a number. It increments the count (value) of the number
--- in the map
-incrementForNum :: Integer -> [(Integer, Integer)] -> [(Integer, Integer)]
-incrementForNum _ [] = []
-incrementForNum n counts@(x:xs)
-  | n < 0       = counts
-  | n > 9       = counts
-  | n == fst x  = (fst x, snd x + 1) : xs
-  | otherwise   = x : incrementForNum n xs
-
-
-
-
+-- Given a maximum string length, and a tuple of (number,count), generates a string of '*' followed
+-- by spaces, up to the maximum length specified.
+getStarStr :: Integer -> (Integer, Integer) -> String
+getStarStr maxStrLen (_, n) = take numStar (repeat '*') ++ take numSpaces (repeat ' ')
+  where 
+    numStar   = fromInteger n
+    numSpaces = fromInteger maxStrLen - numStar
 
 
