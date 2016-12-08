@@ -32,12 +32,7 @@ parse :: String -> [LogMessage]
 parse = map parseMessage . lines
 
 
-
-
 -- Exercise 2
--- data MessageTree = Leaf
---   | Node MessageTree LogMessage MessageTree
-
 insert :: LogMessage -> MessageTree -> MessageTree
 insert (Unknown _)  tree                  = tree
 insert lm           Leaf                  = Node Leaf lm Leaf
@@ -57,13 +52,14 @@ tsForLog (LogMessage _ ts _) = ts
 -- Builds a message tree containing the messages in the list
 build :: [LogMessage] -> MessageTree
 {- Start with an empty tree, and 'accumulate' the nodes into the tree-}
-build = foldl (\acc x -> insert x acc) Leaf
+-- build = foldl (\acc x -> insert x acc) Leaf
+-- build = foldl (flip insert) Leaf
+build = foldr insert Leaf
 
 
 -- Exercise 4
 inOrder :: MessageTree -> [LogMessage]
 inOrder Leaf                  = []
-inOrder (Node Leaf msg Leaf)  = [msg]
 inOrder (Node left msg right) = inOrder left ++ [msg] ++ inOrder right
 
 
