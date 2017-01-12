@@ -26,35 +26,34 @@ instance Monoid Score where
 
 
 score :: Char -> Score
-score c
-    | upperC == 'A'     = Score 1
-    | upperC == 'B'     = Score 2
-    | upperC == 'C'     = Score 3
-    | upperC == 'D'     = Score 2
-    | upperC == 'E'     = Score 1
-    | upperC == 'F'     = Score 4
-    | upperC == 'G'     = Score 2
-    | upperC == 'H'     = Score 4
-    | upperC == 'I'     = Score 1
-    | upperC == 'J'     = Score 8
-    | upperC == 'K'     = Score 5
-    | upperC == 'L'     = Score 1
-    | upperC == 'M'     = Score 3
-    | upperC == 'N'     = Score 1
-    | upperC == 'O'     = Score 1
-    | upperC == 'P'     = Score 3
-    | upperC == 'Q'     = Score 10
-    | upperC == 'R'     = Score 1
-    | upperC == 'S'     = Score 1
-    | upperC == 'T'     = Score 1
-    | upperC == 'U'     = Score 1
-    | upperC == 'V'     = Score 4
-    | upperC == 'W'     = Score 4
-    | upperC == 'X'     = Score 8
-    | upperC == 'Y'     = Score 4
-    | upperC == 'Z'     = Score 10
-    | otherwise         = Score 0
-    where upperC = C.toUpper c
+score c = case C.toUpper c of
+    'A' -> Score 1
+    'B' -> Score 2
+    'C' -> Score 3
+    'D' -> Score 2
+    'E' -> Score 1
+    'F' -> Score 4
+    'G' -> Score 2
+    'H' -> Score 4
+    'I' -> Score 1
+    'J' -> Score 8
+    'K' -> Score 5
+    'L' -> Score 1
+    'M' -> Score 3
+    'N' -> Score 1
+    'O' -> Score 1
+    'P' -> Score 3
+    'Q' -> Score 10
+    'R' -> Score 1
+    'S' -> Score 1
+    'T' -> Score 1
+    'U' -> Score 1
+    'V' -> Score 4
+    'W' -> Score 4
+    'X' -> Score 8
+    'Y' -> Score 4
+    'Z' -> Score 10
+    otherwise -> Score 0
 
 
 scoreString :: String -> Score
