@@ -53,7 +53,7 @@ score c = case C.toUpper c of
     'X' -> Score 8
     'Y' -> Score 4
     'Z' -> Score 10
-    otherwise -> Score 0
+    _   -> Score 0
 
 
 scoreString :: String -> Score
