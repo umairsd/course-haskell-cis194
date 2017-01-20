@@ -15,14 +15,14 @@ import Data.Char as C
 
 
 
-newtype Score = Score Int deriving (Eq, Ord, Show, Num)
+newtype Score = Score Int deriving (Eq, Ord, Show)
 
 getScore :: Score -> Int
 getScore (Score i) = i
 
 instance Monoid Score where
     mempty  = Score 0
-    mappend = (+)
+    mappend (Score m) (Score n) = Score (m + n)
 
 
 score :: Char -> Score

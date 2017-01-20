@@ -150,7 +150,9 @@ instance Buffer (JoinList (Score, Size) String) where
 
     -- | Convert a buffer to a String.
     -- toString :: b -> String
-    toString    = unlines . jlToList
+    toString Empty              = ""
+    toString (Single _ str)     = str
+    toString (Append _ jl1 jl2) = toString jl1 ++ toString jl2
 
     -- | Create a buffer from a String.
     -- fromString :: String -> b
@@ -165,7 +167,11 @@ instance Buffer (JoinList (Score, Size) String) where
     --   with the @n@th line replaced by @ln@.  If the index is
     --   out-of-bounds, the buffer should be returned unmodified.
     -- replaceLine :: Int -> String -> b -> b
-    replaceLine n str jl = takeJ n jl +++ fromString str +++ dropJ (n+1) jl
+    replaceLine n str jl
+        | n < 0 || n > bufferSize = jl
+        | otherwise               = takeJ n jl +++ fromString str +++ dropJ (n+1) jl
+        where
+            bufferSize = numLines jl
 
     -- | Compute the number of lines in the buffer.
     -- numLines :: b -> Int
@@ -177,7 +183,7 @@ instance Buffer (JoinList (Score, Size) String) where
     value = getScore . fst . tag
 
 
-
+main :: IO()
 main = runEditor editor (fromString "HW7-Test" :: (JoinList (Score, Size) String) )
 
 
