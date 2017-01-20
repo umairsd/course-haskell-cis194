@@ -44,6 +44,13 @@ treeFold f acc Node{rootLabel = r, subForest = sf}  = f r mappedList
         mappedList = map (treeFold f acc) sf
 
 
+{-|
+-- A version of the treeFold without the accumulator.
+
+treeFold :: (a -> [b] -> b) -> Tree a -> b
+treeFold f (Node {rootLabel = r, subForest = sf}) = f r (map (treeFold f) sf)
+
+-}
 
 --------------
 -- Exercise 3
@@ -88,7 +95,6 @@ main = do
     companyStr <- readFile "company.txt"
     let tree        = read companyStr :: Tree Employee
         (GL xs fn)  = maxFun tree
-
     putStrLn $ "Total fun: " ++ show fn
     putStrLn $ unlines . sort $ map empName xs
 
