@@ -101,6 +101,16 @@ instance Applicative Parser where
     pure x = Parser (\str -> Just (x, str) )
 
     -- (<*>)            :: f (a -> b) -> f a -> f b
+    -- fab  :: Parser (a->b)
+    -- fa   :: Parser a
+    (<*>) fab fa = Parser (
+        \str -> case (runParser fab) str of
+            Nothing         -> Nothing
+            Just (h, str1)  -> runParser (fmap h fa) str1
+        )
+
+    -- Another approach
+    -- (<*>)            :: f (a -> b) -> f a -> f b
     -- p1               :: Parser( String -> Maybe (a->b, String) )
     -- p2               :: Parser( String -> Maybe (a, String) )
     -- output           :: Parser( String -> Maybe (b, String) )
@@ -110,13 +120,13 @@ instance Applicative Parser where
     -- fab              :: (a -> b)
     -- y                :: a
     --
-    (<*>) p1 p2 = Parser result
-        where
-            result = \x1 -> case runParser p1 x1 of
-                                Nothing         -> Nothing
-                                Just (fab, x2)  -> case runParser p2 x2 of
-                                        Nothing         -> Nothing
-                                        Just(y, out)    -> Just (fab y, out)
+    -- (<*>) p1 p2 = Parser result
+    --     where
+    --         result = \x1 -> case runParser p1 x1 of
+    --                             Nothing         -> Nothing
+    --                             Just (fab, x2)  -> case runParser p2 x2 of
+    --                                     Nothing         -> Nothing
+    --                                     Just(y, out)    -> Just (fab y, out)
 
 
 
@@ -171,11 +181,14 @@ instance Alternative Parser where
     -- then p2 is ignored and the result of p1 is returned. Otherwise, if p1 fails
     -- then p2 is tried instead
     -- (<|>) :: f a -> f a -> f a
-    (<|>) p1 p2 = Parser (\input -> case runParser p1 input of
-                        Nothing     -> case runParser p2 input of
-                                Nothing     -> Nothing
-                                p2Result    -> p2Result
-                        p1Result    -> p1Result)
+    (<|>) fa1 fa2 = Parser (\str -> runParser fa1 str <|> runParser fa2 str)
+
+    -- Another approach
+    -- (<|>) p1 p2 = Parser (\input -> case runParser p1 input of
+    --                     Nothing     -> case runParser p2 input of
+    --                             Nothing     -> Nothing
+    --                             p2Result    -> p2Result
+    --                     p1Result    -> p1Result)
 
 
 
@@ -184,7 +197,6 @@ instance Alternative Parser where
 --------------
 
 intOrUppercase :: Parser ()
--- intOrUppercase = (\_ -> ()) <$> posInt <|> (\_ -> ()) <$> (satisfy isUpper)
 intOrUppercase = f posInt <|> f (satisfy isUpper)
     where f = fmap (\_ -> ())
 
